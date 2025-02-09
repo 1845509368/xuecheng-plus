@@ -117,6 +117,7 @@ public class TeachplanServiceImpl implements TeachplanService {
      *
      */
     @Override
+    @Transactional
     public RestResponse<Boolean> deleteTeachplan(Long id) {
 //        1、删除大章节，大章节下有小章节时不允许删除。
 //        2、删除大章节，大单节下没有小章节时可以正常删除。
