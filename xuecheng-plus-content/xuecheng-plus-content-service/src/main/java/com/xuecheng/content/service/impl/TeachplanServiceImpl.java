@@ -134,4 +134,36 @@ public class TeachplanServiceImpl implements TeachplanService {
 
         return RestResponse.success();
     }
+
+    @Override
+    @Transactional
+    public void moveDown(Long id) {
+        Teachplan teachplan = teachplanMapper.selectById(id);
+        Integer orderby = teachplan.getOrderby();
+        //判断是否是最大排序
+        int count = teachplanMapper.isMaxOrder(teachplan.getCourseId(), teachplan.getParentid(), orderby);
+        if (count == 0){
+            return;
+        }
+        int order = teachplanMapper.selectMinOrder(teachplan.getCourseId(), teachplan.getParentid(), orderby);
+        teachplanMapper.updateMinOrder(teachplan.getCourseId(), teachplan.getParentid(), orderby, order);
+        teachplan.setOrderby(order);
+        teachplanMapper.updateById(teachplan);
+    }
+
+    @Override
+    @Transactional
+    public void moveUp(Long id) {
+        Teachplan teachplan = teachplanMapper.selectById(id);
+        Integer orderby = teachplan.getOrderby();
+        //判断是否是最小排序
+        int count = teachplanMapper.isMinOrder(teachplan.getCourseId(), teachplan.getParentid(), orderby);
+        if (count == 0){
+            return;
+        }
+        int order = teachplanMapper.selectMaxOrderBy(teachplan.getCourseId(), teachplan.getParentid(),orderby);
+        teachplanMapper.updateMaxOrder(teachplan.getCourseId(), teachplan.getParentid(), orderby, order);
+        teachplan.setOrderby(order);
+        teachplanMapper.updateById(teachplan);
+    }
 }

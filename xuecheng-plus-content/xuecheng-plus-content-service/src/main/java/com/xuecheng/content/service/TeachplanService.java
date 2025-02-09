@@ -30,4 +30,8 @@ public interface TeachplanService {
      * 删除教学计划
      */
     RestResponse<Boolean> deleteTeachplan(Long id);
+
+    void moveDown(Long id);
+
+    void moveUp(Long id);
 }

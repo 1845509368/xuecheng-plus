@@ -51,14 +51,16 @@ public class TeachplanController {
 
     @ApiOperation("向下移动")
     @PostMapping("/movedown/{id}")
-    public void movedown() {
+    public void movedown(@PathVariable Long id) {
         // TODO 向下移动
+        teachplanService.moveDown(id);
     }
 
     @ApiOperation("向上移动")
     @PostMapping("/moveup/{id}")
-    public void moveup() {
+    public void moveup(@PathVariable Long id) {
         // TODO 向上移动
+        teachplanService.moveUp(id);
     }
 
 
