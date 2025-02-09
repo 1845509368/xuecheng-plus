@@ -53,11 +53,11 @@ public class TeachplanServiceImpl implements TeachplanService {
             //新增
             Teachplan teachplan = new Teachplan();
             BeanUtils.copyProperties(saveTeachplanDto,teachplan);
-            //确定排序字段，找到它的同级节点个数，排序字段就是个数加1  select count(1) from teachplan where course_id=117 and parentid=268
-            Long parentid = saveTeachplanDto.getParentid();
+            //确定排序字段，找到它的同级节点个数，排序字段就是个数加1  select count(1) from teachplan where course_id=117 and parentId=268
+            Long parentId = saveTeachplanDto.getParentid();
             Long courseId = saveTeachplanDto.getCourseId();
-            int teachplanCount = getTeachplanCount(courseId, parentid);
-            teachplan.setOrderby(teachplanCount);
+            int order = getTeachplanOrder(courseId, parentId);
+            teachplan.setOrderby(order);
             teachplanMapper.insert(teachplan);
 
         }else{
@@ -72,11 +72,9 @@ public class TeachplanServiceImpl implements TeachplanService {
 
 
 
-    private int getTeachplanCount(Long courseId,Long parentId){
-        LambdaQueryWrapper<Teachplan> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper = queryWrapper.eq(Teachplan::getCourseId, courseId).eq(Teachplan::getParentid, parentId);
-        Integer count = teachplanMapper.selectCount(queryWrapper);
-        return  count+1;
+    private int getTeachplanOrder(Long courseId,Long parentId){
+        int max = teachplanMapper.findMaxOrderBy(courseId, parentId);
+        return  max+1;
     }
 
     /**
@@ -119,6 +117,7 @@ public class TeachplanServiceImpl implements TeachplanService {
      *
      */
     @Override
+    @Transactional
     public RestResponse<Boolean> deleteTeachplan(Long id) {
 //        1、删除大章节，大章节下有小章节时不允许删除。
 //        2、删除大章节，大单节下没有小章节时可以正常删除。
@@ -133,5 +132,37 @@ public class TeachplanServiceImpl implements TeachplanService {
         teachplanMediaMapper.delete(new LambdaQueryWrapper<TeachplanMedia>().eq(TeachplanMedia::getTeachplanId,id));
 
         return RestResponse.success();
+    }
+
+    @Override
+    @Transactional
+    public void moveDown(Long id) {
+        Teachplan teachplan = teachplanMapper.selectById(id);
+        Integer orderby = teachplan.getOrderby();
+        //判断是否是最大排序
+        int count = teachplanMapper.isMaxOrder(teachplan.getCourseId(), teachplan.getParentid(), orderby);
+        if (count == 0){
+            return;
+        }
+        int order = teachplanMapper.selectMinOrder(teachplan.getCourseId(), teachplan.getParentid(), orderby);
+        teachplanMapper.updateMinOrder(teachplan.getCourseId(), teachplan.getParentid(), orderby, order);
+        teachplan.setOrderby(order);
+        teachplanMapper.updateById(teachplan);
+    }
+
+    @Override
+    @Transactional
+    public void moveUp(Long id) {
+        Teachplan teachplan = teachplanMapper.selectById(id);
+        Integer orderby = teachplan.getOrderby();
+        //判断是否是最小排序
+        int count = teachplanMapper.isMinOrder(teachplan.getCourseId(), teachplan.getParentid(), orderby);
+        if (count == 0){
+            return;
+        }
+        int order = teachplanMapper.selectMaxOrderBy(teachplan.getCourseId(), teachplan.getParentid(),orderby);
+        teachplanMapper.updateMaxOrder(teachplan.getCourseId(), teachplan.getParentid(), orderby, order);
+        teachplan.setOrderby(order);
+        teachplanMapper.updateById(teachplan);
     }
 }
