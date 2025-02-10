@@ -165,4 +165,10 @@ public class TeachplanServiceImpl implements TeachplanService {
         teachplan.setOrderby(order);
         teachplanMapper.updateById(teachplan);
     }
+
+    @Override
+    public void removeBinding(Long teachplanId, Long mediaId) {
+        teachplanMediaMapper.delete(new LambdaQueryWrapper<TeachplanMedia>().eq(TeachplanMedia::getTeachplanId,teachplanId));
+
+    }
 }

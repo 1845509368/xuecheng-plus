@@ -34,4 +34,6 @@ public interface TeachplanService {
     void moveDown(Long id);
 
     void moveUp(Long id);
+
+    void removeBinding(Long teachplanId, Long mediaId);
 }
