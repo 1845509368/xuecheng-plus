@@ -73,7 +73,10 @@ public class TeachplanServiceImpl implements TeachplanService {
 
 
     private int getTeachplanOrder(Long courseId,Long parentId){
-        int max = teachplanMapper.findMaxOrderBy(courseId, parentId);
+        Integer max = teachplanMapper.findMaxOrderBy(courseId, parentId);
+        if (max==null){
+            return 1;
+        }
         return  max+1;
     }
 
