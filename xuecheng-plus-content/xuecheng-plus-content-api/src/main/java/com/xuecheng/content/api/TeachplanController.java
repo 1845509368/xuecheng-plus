@@ -42,6 +42,12 @@ public class TeachplanController {
     }
 
 
+    @ApiOperation("解绑媒资")
+    @DeleteMapping("/association/media/{teachplanId}/{mediaId}")
+    public void removeBinding(@PathVariable("teachplanId") Long teachplanId,@PathVariable("mediaId") Long mediaId){
+        teachplanService.removeBinding(teachplanId, mediaId);
+    }
+
     @ApiOperation("删除课程计划")
     @DeleteMapping("{id}")
     public RestResponse<Boolean> deleteTeachplan(@PathVariable Long id) {
